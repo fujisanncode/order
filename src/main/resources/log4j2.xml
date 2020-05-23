@@ -1,0 +1,87 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+    6个优先级从高到低依次为：OFF、FATAL、ERROR、WARN、INFO、DEBUG、TRACE、 ALL。
+    如果设置优先级为WARN，那么OFF、FATAL、ERROR、WARN 4个级别的log能正常输出
+    设置为OFF 表示不记录log4j2本身的日志，
+ -->
+
+<!-- status：用来指定log4j本身的打印日志级别,monitorInterval:指定log4j自动重新配置的监测间隔时间 -->
+<configuration monitorInterval="30" status="INFO">
+    <!-- 自己设置属性，后面通过${}来访问 -->
+    <appenders>
+        <!--Appender 1. 输出到Console控制台，指定输出格式和过滤器等级为INFO -->
+        <Console name="Console" target="SYSTEM_OUT">
+            <!--ThresholdFilter指定日志消息的输出最低层次, 控制台开启打印颜色-->
+            <PatternLayout
+                    pattern="%style{%d{ISO8601}}{bright,green} %highlight{%-5level}[%style{%t}{bright,blue}] %style{%C{10}}{bright,yellow}: %msg%n%style{%throwable}{red}"
+                    disableAnsi="false"
+                    noConsoleNoAnsi="false"/>
+            <ThresholdFilter level="debug" onMatch="ACCEPT" onMismatch="DENY"/>
+        </Console>
+
+        <!--&lt;!&ndash;Appender 2. 输出到滚动保存的文件, 触发保存日志文件的条件是日志文件大于3KB，只保存最新的10个日志&ndash;&gt;-->
+        <!--<File fileName="log/all.log" name="allLog">-->
+        <!--  <PatternLayout charset="UTF-8" pattern="%d{yyyy.MM.dd 'at' HH:mm:ss z} %-5level %class{36} %L %M - %msg%xEx%n"/>-->
+        <!--  <ThresholdFilter level="ALL" onMatch="ACCEPT" onMismatch="DENY"/>-->
+        <!--</File>-->
+
+
+        <!--Appender 3. 输出到滚动保存的文件, 触发保存日志文件的条件是日志文件大于3KB，只保存最新的10个日志-->
+        <RollingFile fileName="log/debug.log" filePattern="log/debug-%i.log" name="debugLog">
+            <!-- DefaultRolloverStrategy 中的参数max，可以限制 SizeBasedTriggeringPolicy中size超出后，只保留max个存档-->
+            <DefaultRolloverStrategy max="1"/>
+            <PatternLayout charset="UTF-8" pattern="[%-5level][%d{yyyy-MM-dd HH:mm:ss}][%F:%L] - %m%n"/>
+            <SizeBasedTriggeringPolicy size="100MB"/>
+            <ThresholdFilter level="all" onMatch="ACCEPT" onMismatch="DENY"/>
+        </RollingFile>
+
+        <!--&lt;!&ndash;Appender 4. 输出到滚动保存的文件, 触发保存日志文件的条件是每分钟第一次的日志事件。ERROR日志是按分钟产生日志 &ndash;&gt;-->
+        <!--<RollingFile fileName="log/error.log" filePattern="log/error-%d{yyyy-MM-dd_HH-mm}.log"-->
+        <!--  name="errorLog">-->
+        <!--  <PatternLayout charset="UTF-8" pattern="[%-5level][%d{yyyy-MM-dd HH:mm:ss}][%C:%F:%L] - %m%n"/>-->
+        <!--  <ThresholdFilter level="ERROR" onMatch="ACCEPT" onMismatch="DENY"/>-->
+        <!--  <TimeBasedTriggeringPolicy/>-->
+        <!--</RollingFile>-->
+
+        <!--<RollingFile fileName="log/rar.log"-->
+        <!--  filePattern="log/$${date:yyyy-MM}/${FILE_NAME}-%d{MM-dd-yyyy}-%i.log.gz"-->
+        <!--  name="RollingFile">-->
+        <!--  <PatternLayout charset="UTF-8" pattern="%d{yyyy-MM-dd 'at' HH:mm:ss z} %-5level %class{36} %L %M - %msg%xEx%n"/>-->
+        <!--  &lt;!&ndash;日志文件最大值 第二天压缩&ndash;&gt;-->
+        <!--  <Policies>-->
+        <!--    <SizeBasedTriggeringPolicy size="10 MB"/>-->
+        <!--    <TimeBasedTriggeringPolicy/>-->
+        <!--  </Policies>-->
+        <!--</RollingFile>-->
+
+
+    </appenders>
+    <loggers>
+        <!--没有指定logger 所有包下的日志按照root中的规则输出    logger给特定包下日志特定的输出方式-->
+        <!--additivity = "false" 输出源不继承root 默认会继承root的输出源(因此logger下不需要设置输出源，否则会导致日志重复)-->
+        <!--<logger level="debug" name="org.mybatis" additivity="false">-->
+        <!--  <appender-ref ref="debugLog"/>-->
+        <!--</logger>-->
+        <!--<logger level="debug" name="java.sql" additivity="false">-->
+        <!--  <appender-ref ref="debugLog"/>-->
+        <!--</logger>-->
+        <!--<logger level="trace" name="org.apache.ibatis" additivity="false">-->
+        <!--  <appender-ref ref="debugLog"/>-->
+        <!--</logger>-->
+        <!--<logger level="info" name="org.springframework"></logger>-->
+        <!--&lt;!&ndash;记录sql日志 dao层 debug级别&ndash;&gt;-->
+        <!--<logger level="debug" name="com.example.sqllearning.dao" additivity="false">-->
+        <!--  <appender-ref ref="debugLog"/>-->
+        <!--</logger>-->
+        <root level="debug">
+            <appender-ref ref="Console"/>
+            <appender-ref ref="debugLog"/>
+            <!--<appender-ref ref="errorLog"/>-->
+            <!--<appender-ref ref="RollingFile"/>-->
+        </root>
+    </loggers>
+    <!--root 默认加载-->
+    <properties>
+        <property name="LOG_HOME">log/logs</property>
+    </properties>
+</configuration>
